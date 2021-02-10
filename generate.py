@@ -15,29 +15,34 @@ import datetime
 import sys
 
 
-def randomWorkTime():
+def randomTime(routeLength):
     """ generate random times and return start, end and total time """
 
-    startHour, startMinute = 6, 0
-    randomHour, randomMinute = random.randint(0, 3), random.randint(0, 59)
-    startTime = datetime.datetime(1970, 1, 1, hour=startHour+randomHour, minute=startMinute+randomMinute)
+    # convert routeLength minutes to a tuple (HOUR, MINUTE) and then to variables
+    routeLength = divmod(routeLength, 60)
+    routeLengthHour = routeLength[0]
+    routeLengthMinute = routeLength[1]
 
-    endHour, endMinute = 22, 0
-    randEndHour, randEndMinute = random.randint(0, 1), random.randint(0, 59)
-    endTime = datetime.datetime(1970, 1, 1, hour=endHour+randEndHour, minute=endMinute+randEndMinute)
+    # morning time generator
+    randHour, randMinute = random.randint(0, 3), random.randint(0, 59)
+    salt = random.randint(0, 10)
+    morningStartTime = datetime.datetime(1970, 1, 1, hour=6+randHour, minute=randMinute)
+    morningAdd = datetime.timedelta(hours=routeLengthHour, minutes=routeLengthMinute + salt)
+    morningEndTime = morningStartTime + morningAdd
+    
+    # evening time generator
+    randHour, randMinute = random.randint(0, 1), random.randint(27, 59)
+    salt = random.randint(0, 10)
+    eveningStartTime = datetime.datetime(1970, 1, 1, hour=21+randHour, minute=randMinute)
+    eveningAdd = datetime.timedelta(hours=routeLengthHour, minutes=routeLengthMinute + salt)
+    eveningEndTime = eveningStartTime + eveningAdd
 
-    totalTime = endTime - startTime
+    morningStartTime = str(morningStartTime)[10:-3]
+    morningEndTime = str(morningEndTime)[10:-3]
+    eveningStartTime = str(eveningStartTime)[10:-3]
+    eveningEndTime = str(eveningEndTime)[10:-3]
 
-    startTimeStr = str(startTime)
-    startTimeFinal = startTimeStr[12:16]
-
-    endTimeStr = str(endTime)
-    endTimeFinal = endTimeStr[11:16]
-
-    totalTimeStr = str(totalTime)
-    totalTimeFinal = totalTimeStr[:-3]
-
-    return [startTimeFinal, endTimeFinal, totalTimeFinal]
+    return [morningStartTime, morningEndTime, eveningStartTime, eveningEndTime]
 
 
 def dayRoute(routeType):
@@ -67,50 +72,52 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
 
     for day in range(numberOfDays):
 
+        # TODO: remove this, singleDay is not needed anymore
+
         # singleDay generates how many routes per day will be done (1, 2 or 3)
         # singleDay = random.randrange(4, 8, 2)  # (start, stop, step)
 
         singleDay = 4  # only 4 lines per route to save space on sheet
 
         getStartRoute = dayRoute(singleDay)  # get dayRoute function result
-        getRandomWorkTime = randomWorkTime()  # get start hour, end hour and division
-
-        # print(getStartRoute)
-        # print(getRandomWorkTime)
+        getRandomTime = randomTime(int(getStartRoute[2]))  # get start hour, end hour and division
 
         if singleDay == 4:  # if route between 2 cities
             for event in range(singleDay):
 
-                # 1st route
+                # way there ->
                 if event == 0:
                     startDateStr = startDate.strftime('%d.%m.%Y')  # starting date (usualy 1.1.2020)
-                    ws.cell(row=startRow, column=startColumn, value=startDateStr)  # fill cell with date
+                    ws.cell(row=startRow, column=startColumn, value=startDateStr)  # fill 1st cell with date
 
                     ws.cell(row=startRow, column=startColumn+1, value="odchod")  # fill odchod
                     ws.cell(row=startRow, column=startColumn+2, value=getStartRoute[0])  # fill start city
+                    ws.cell(row=startRow, column=startColumn+3, value=getRandomTime[0]).alignment = Alignment(vertical="center", horizontal="center")  # morning start time
                     ws.cell(row=startRow, column=startColumn+4, value="AUS").alignment = Alignment(vertical="center", horizontal="center")
                     ws.cell(row=startRow, column=startColumn+5, value=getStartRoute[2]).alignment = Alignment(vertical="center", horizontal="center")  # fill km
-                    ws.cell(row=startRow, column=startColumn+6, value=getRandomWorkTime[0]).alignment = Alignment(vertical="center", horizontal="center")  # fill start work time
+                    # ws.cell(row=startRow, column=startColumn+6, value=getRandomWorkTime[0]).alignment = Alignment(vertical="center", horizontal="center")  # fill start work time
                 if event == 1:
                     ws.cell(row=startRow, column=startColumn+1, value="príchod")  # fill prichod
                     ws.cell(row=startRow, column=startColumn+2, value=getStartRoute[1])  # fill destination city
-                    ws.cell(row=startRow, column=startColumn+6, value=getRandomWorkTime[1]).alignment = Alignment(vertical="center", horizontal="center")  # fill end work time
+                    ws.cell(row=startRow, column=startColumn+3, value=getRandomTime[1]).alignment = Alignment(vertical="center", horizontal="center")  # morning end time
+                    # ws.cell(row=startRow, column=startColumn+6, value=getRandomWorkTime[1]).alignment = Alignment(vertical="center", horizontal="center")  # fill end work time
 
-                # 2nd route
+                # way back <-
                 if event == 2:
                     ws.cell(row=startRow, column=startColumn+1, value="odchod")  # fill odchod
                     ws.cell(row=startRow, column=startColumn+2, value=getStartRoute[1])  # fill destination city
+                    ws.cell(row=startRow, column=startColumn+3, value=getRandomTime[2]).alignment = Alignment(vertical="center", horizontal="center")  # evening start time
                     ws.cell(row=startRow, column=startColumn+4, value="AUS").alignment = Alignment(vertical="center", horizontal="center")
                     ws.cell(row=startRow, column=startColumn+5, value=getStartRoute[2]).alignment = Alignment(vertical="center", horizontal="center")  # fill km
                 if event == 3:
                     ws.cell(row=startRow, column=startColumn+1, value="príchod")  # fill prichod
                     ws.cell(row=startRow, column=startColumn+2, value=getStartRoute[0])  # fill start city
+                    ws.cell(row=startRow, column=startColumn+3, value=getRandomTime[3]).alignment = Alignment(vertical="center", horizontal="center")  # evening end time
 
                 startRow += 1
 
             # increment day by 1
             startDate = startDate + datetime.timedelta(days=1)
-            # print(startDate)
 
 
 # main
