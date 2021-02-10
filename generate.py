@@ -128,6 +128,6 @@ if __name__ == '__main__':
     ws = wb2.active  # set 2nd excel active
 
     # generateDates params: startRow, startColumn, startDate, numberOfDays
-    fillSheet(6, 1, datetime.datetime.strptime('2020-02-01', '%Y-%m-%d'), 31)
+    fillSheet(5, 1, datetime.datetime.strptime('2020-02-01', '%Y-%m-%d'), 31)
     wb2.save("output.xlsx")
     print("Done!")
