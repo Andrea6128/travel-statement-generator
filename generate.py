@@ -87,6 +87,14 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
         getStartRoute = dayRoute()  # get dayRoute function result
         getRandomTime = randomTime(int(getStartRoute[2]))  # get start hour, end hour and division
 
+        # diets
+        if int(getRandomTime[4][:2]) >= 5 and int(getRandomTime[4][:2]) < 12:
+            diets = round(decimal.Decimal(5.1), 2)
+        if int(getRandomTime[4][:2]) >= 12 and int(getRandomTime[4][:2]) < 18:
+            diets = round(decimal.Decimal(7.6), 2)
+        if int(getRandomTime[4][:2]) >= 18:
+            diets = round(decimal.Decimal(11.6), 2)
+
         for event in range(4):
 
             # way there ->
@@ -102,6 +110,7 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
                 petrolPrice = getPetrol()  # get random petrol price
                 petrolPrice = float(round(decimal.Decimal(petrolPrice[1] * float(getStartRoute[2])), 2))
                 ws.cell(row=startRow, column=startColumn+7, value=petrolPrice).alignment = Alignment(vertical="center", horizontal="center")  # petrol price
+                ws.cell(row=startRow, column=startColumn+8, value=diets).alignment = Alignment(vertical="center", horizontal="center")  # diets
             if event == 1:
                 ws.cell(row=startRow, column=startColumn+1, value="príchod")  # fill prichod
                 ws.cell(row=startRow, column=startColumn+2, value=getStartRoute[1])  # fill destination city
@@ -115,6 +124,7 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
                 ws.cell(row=startRow, column=startColumn+4, value="AUS").alignment = Alignment(vertical="center", horizontal="center")
                 ws.cell(row=startRow, column=startColumn+5, value=getStartRoute[2]).alignment = Alignment(vertical="center", horizontal="center")  # km
                 ws.cell(row=startRow, column=startColumn+7, value=petrolPrice).alignment = Alignment(vertical="center", horizontal="center")  # petrol price
+                ws.cell(row=startRow, column=startColumn+8, value=diets).alignment = Alignment(vertical="center", horizontal="center")  # diets
             if event == 3:
                 ws.cell(row=startRow, column=startColumn+1, value="príchod")  # fill prichod
                 ws.cell(row=startRow, column=startColumn+2, value=getStartRoute[0])  # fill start city
@@ -132,6 +142,14 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
         petrolValueList.append(ws.cell(row=row, column=8).value)
     sumOfValueList = sum(petrolValueList)
     ws.cell(row=129, column=8, value=sumOfValueList)
+
+    # footer - write diets column sum
+    dietValueList = []
+    for row in range(5, 128, 2):
+        dietValueList.append(ws.cell(row=row, column=9).value)
+    sumOfValueList = sum(dietValueList)
+    ws.cell(row=129, column=9, value=float(round(decimal.Decimal(sumOfValueList), 2)))
+
 
 
 # main
