@@ -148,7 +148,8 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
     for row in range(5, 128, 2):
         dietValueList.append(ws.cell(row=row, column=9).value)
     sumOfValueList = sum(dietValueList)
-    ws.cell(row=129, column=9, value=float(round(decimal.Decimal(sumOfValueList), 2)))
+    # ws.cell(row=129, column=9, value=float(round(decimal.Decimal(sumOfValueList), 2)))
+    ws.cell(row=129, column=9, value=sumOfValueList)
 
 
 
