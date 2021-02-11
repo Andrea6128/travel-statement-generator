@@ -17,8 +17,9 @@ import decimal
 
 
 def getPetrol():
-    petrolPrice = random.randint(120, 135) / 100
-    consumption = 22 / 100  # 22 litres per 100 km
+    petrolPrice = random.randint(120, 135) / 100  # random cena za litr
+    flatRateConpensation = .193  # pausalni nahrada
+    consumption = (22 / 100) + flatRateConpensation  # 22 litres per 100 km
     consumptionPrice = consumption * petrolPrice
 
     return [petrolPrice, consumptionPrice]
@@ -96,7 +97,6 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
             diets = round(decimal.Decimal(11.6), 2)
 
         for event in range(4):
-
             # way there ->
             if event == 0:
                 startDateStr = startDate.strftime('%d.%m.%Y')  # starting date (usualy 1.1.2020)
@@ -155,7 +155,7 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
 
 # main
 if __name__ == '__main__':
-    print("Generating output.xlsx ...")
+    print("Processing output.xlsx ...")
     wb1 = load_workbook("mesta_input.xlsx")
     wb2 = load_workbook("output.xlsx")
     ws = wb2.active  # set 2nd excel active
