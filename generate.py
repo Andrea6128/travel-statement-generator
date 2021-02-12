@@ -17,6 +17,8 @@ import decimal
 
 
 def getPetrol():
+    """ count petrol consumption price per 1km """
+
     petrolPrice = random.randint(120, 135) / 100  # random cena za litr
     flatRateConpensation = .193  # pausalni nahrada
     consumption = (22 / 100) + flatRateConpensation  # 22 litres per 100 km
@@ -29,22 +31,21 @@ def randomTime(routeLength):
     """ generate random times and return start, end and total time """
 
     # convert routeLength minutes to a tuple (HOUR, MINUTE) and then to variables
-    routeLength = divmod(routeLength, 60)
-    routeLengthHour = routeLength[0]
-    routeLengthMinute = routeLength[1]
+    routeLengthHour = int(routeLength[:1])
+    routeLengthMinute = int(routeLength[3:5])
 
     # morning time generator
     randHour, randMinute = random.randint(0, 3), random.randint(0, 59)
-    salt = random.randint(0, 10)
+    # salt = random.randint(0, 10)
     morningStartTime = datetime.datetime(1970, 1, 1, hour=6+randHour, minute=randMinute)
-    morningAdd = datetime.timedelta(hours=routeLengthHour, minutes=routeLengthMinute + salt)
+    morningAdd = datetime.timedelta(hours=routeLengthHour, minutes=routeLengthMinute) # + salt)
     morningEndTime = morningStartTime + morningAdd
     
     # evening time generator
     randHour, randMinute = random.randint(0, 1), random.randint(27, 59)
     salt = random.randint(0, 10)
     eveningStartTime = datetime.datetime(1970, 1, 1, hour=21+randHour, minute=randMinute)
-    eveningAdd = datetime.timedelta(hours=routeLengthHour, minutes=routeLengthMinute + salt)
+    eveningAdd = datetime.timedelta(hours=routeLengthHour, minutes=routeLengthMinute) # + salt)
     eveningEndTime = eveningStartTime + eveningAdd
 
     # count total time (evening end - morning start)
@@ -84,9 +85,9 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
     """ fill the worksheet with all data """
 
     for day in range(numberOfDays):
-
-        getStartRoute = dayRoute()  # get dayRoute function result
-        getRandomTime = randomTime(int(getStartRoute[2]))  # get start hour, end hour and division
+        getStartRoute = dayRoute()  # get dayRoute function result [start city, end city, km, time]
+        getRandomTime = randomTime(getStartRoute[3])  # get start hour, end hour and travel time
+                                                      # [start time, end time, start time2, end time2, total time]
 
         # diets
         # if 5-12, set to 5.1
