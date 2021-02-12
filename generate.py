@@ -32,7 +32,7 @@ def randomTime(routeLength):
 
     # convert routeLength minutes to a tuple (HOUR, MINUTE) and then to variables
     routeLengthHour = int(routeLength[:1])
-    routeLengthMinute = int(routeLength[3:5])
+    routeLengthMinute = int(routeLength[3:-3])
 
     # morning time generator
     randHour, randMinute = random.randint(0, 3), random.randint(0, 59)
@@ -65,8 +65,7 @@ def dayRoute():
 
     dayRouteResult = []
     ws = wb1.active  # set input excel active
-    randomStartCity = random.randint(1, 71)  # select random city combination from the base city
-    randomStartCity2 = random.randint(72, 2556)  # select random city combination from the other cities except first
+    randomStartCity = random.randint(1, 72)  # select random city combination from the base city
 
     cityFrom = ws['A'+str(randomStartCity)].value
     cityTo = ws['B'+str(randomStartCity)].value
@@ -86,10 +85,10 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
 
     for day in range(numberOfDays):
         getStartRoute = dayRoute()  # get dayRoute function result [start city, end city, km, time]
-        getRandomTime = randomTime(getStartRoute[3])  # get start hour, end hour and travel time
+        getRandomTime = randomTime(getStartRoute[3])  # get start hours, end hours and travel time
                                                       # [start time, end time, start time2, end time2, total time]
 
-        # diets
+        # set diets
         # if 5-12, set to 5.1
         if int(getRandomTime[4][:2]) >= 5 and int(getRandomTime[4][:2]) < 12:
             diets = round(decimal.Decimal(5.1), 2)
@@ -116,6 +115,7 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
 
                 ws.cell(row=startRow, column=startColumn+7, value=petrolPrice).alignment = Alignment(vertical="center", horizontal="center")  # petrol price
                 ws.cell(row=startRow, column=startColumn+8, value=diets).alignment = Alignment(vertical="center", horizontal="center")  # diets
+                ws.cell(row=startRow, column=startColumn+11, value=petrolPrice+float(diets)).alignment = Alignment(vertical="center", horizontal="center")  # together
             if event == 1:
                 ws.cell(row=startRow, column=startColumn+1, value="príchod")  # fill prichod
                 ws.cell(row=startRow, column=startColumn+2, value=getStartRoute[1])  # fill destination city
@@ -130,6 +130,7 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
                 ws.cell(row=startRow, column=startColumn+5, value=getStartRoute[2]).alignment = Alignment(vertical="center", horizontal="center")  # km
                 ws.cell(row=startRow, column=startColumn+7, value=petrolPrice).alignment = Alignment(vertical="center", horizontal="center")  # petrol price
                 ws.cell(row=startRow, column=startColumn+8, value=diets).alignment = Alignment(vertical="center", horizontal="center")  # diets
+                ws.cell(row=startRow, column=startColumn+11, value=petrolPrice+float(diets)).alignment = Alignment(vertical="center", horizontal="center")  # together
             if event == 3:
                 ws.cell(row=startRow, column=startColumn+1, value="príchod")  # fill prichod
                 ws.cell(row=startRow, column=startColumn+2, value=getStartRoute[0])  # fill start city
@@ -155,6 +156,15 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
     sumOfValueList = sum(dietValueList)
     ws.cell(row=129, column=9, value=sumOfValueList)
 
+    # write "together" fields sum
+    togetherValueList = []
+    for cell in range(8, 10):
+        togetherValueList.append(float(ws.cell(row=129, column=cell).value))
+    sumOfValueList = sum(togetherValueList)
+    ws.cell(row=129, column=12, value=sumOfValueList)
+
+    # write "overpay/underpay" field sum
+    ws.cell(row=131, column=12, value=ws.cell(row=129, column=12).value)
 
 
 # main
