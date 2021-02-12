@@ -78,7 +78,33 @@ def dayRoute():
     dayRouteResult.append(str(travelTime))
 
     return dayRouteResult
-    
+
+def writeFooterValues():    
+    # *** footer ***
+    # write petrol column sum
+    petrolValueList = []
+    for row in range(5, 128, 2):
+        petrolValueList.append(ws.cell(row=row, column=8).value)
+    sumOfValueList = sum(petrolValueList)
+    ws.cell(row=129, column=8, value=sumOfValueList)
+
+    # write diets column sum
+    dietValueList = []
+    for row in range(5, 128, 2):
+        dietValueList.append(ws.cell(row=row, column=9).value)
+    sumOfValueList = sum(dietValueList)
+    ws.cell(row=129, column=9, value=sumOfValueList)
+
+    # write "together" fields sum
+    togetherValueList = []
+    for cell in range(8, 10):
+        togetherValueList.append(float(ws.cell(row=129, column=cell).value))
+    sumOfValueList = sum(togetherValueList)
+    ws.cell(row=129, column=12, value=sumOfValueList)
+
+    # write "overpay/underpay" field sum
+    ws.cell(row=131, column=12, value=ws.cell(row=129, column=12).value)
+
 
 def fillSheet(startRow, startColumn, startDate, numberOfDays):
     """ fill the worksheet with all data """
@@ -141,31 +167,7 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
         # increment day by 1
         startDate = startDate + datetime.timedelta(days=1)
 
-    # *** footer ***
-    # write petrol column sum
-    petrolValueList = []
-    for row in range(5, 128, 2):
-        petrolValueList.append(ws.cell(row=row, column=8).value)
-    sumOfValueList = sum(petrolValueList)
-    ws.cell(row=129, column=8, value=sumOfValueList)
-
-    # write diets column sum
-    dietValueList = []
-    for row in range(5, 128, 2):
-        dietValueList.append(ws.cell(row=row, column=9).value)
-    sumOfValueList = sum(dietValueList)
-    ws.cell(row=129, column=9, value=sumOfValueList)
-
-    # write "together" fields sum
-    togetherValueList = []
-    for cell in range(8, 10):
-        togetherValueList.append(float(ws.cell(row=129, column=cell).value))
-    sumOfValueList = sum(togetherValueList)
-    ws.cell(row=129, column=12, value=sumOfValueList)
-
-    # write "overpay/underpay" field sum
-    ws.cell(row=131, column=12, value=ws.cell(row=129, column=12).value)
-
+    writeFooterValues()
 
 # main
 if __name__ == '__main__':
