@@ -1,4 +1,4 @@
-# travel statement generator
+# *** travel statement generator ***
 # this program generates random travel times and
 # calculates corresponding values and fees
 # 
@@ -20,9 +20,9 @@ def getPetrol():
     """ count petrol consumption price per 1km """
 
     petrolPrice = random.randint(120, 135) / 100  # random cena za litr
+    consumption = 22 / 100
     flatRateConpensation = .193  # pausalni nahrada
-    consumption = (22 / 100) + flatRateConpensation  # 22 litres per 100 km
-    consumptionPrice = consumption * petrolPrice
+    consumptionPrice = petrolPrice * consumption + flatRateConpensation
 
     return [petrolPrice, consumptionPrice]
 
@@ -37,19 +37,23 @@ def randomTime(routeLength):
     # morning time generator
     randHour, randMinute = random.randint(0, 3), random.randint(0, 59)
     # salt = random.randint(0, 10)
-    morningStartTime = datetime.datetime(1970, 1, 1, hour=6+randHour, minute=randMinute)
+    morningStartTime = datetime.datetime(1970, 1, 1, hour=6 + randHour, minute=randMinute)
     morningAdd = datetime.timedelta(hours=routeLengthHour, minutes=routeLengthMinute) # + salt)
     morningEndTime = morningStartTime + morningAdd
     
     # evening time generator
     randHour, randMinute = random.randint(0, 1), random.randint(27, 59)
     salt = random.randint(0, 10)
-    eveningStartTime = datetime.datetime(1970, 1, 1, hour=21+randHour, minute=randMinute)
+    eveningStartTime = datetime.datetime(1970, 1, 1, hour=19 + randHour, minute=randMinute)
     eveningAdd = datetime.timedelta(hours=routeLengthHour, minutes=routeLengthMinute) # + salt)
     eveningEndTime = eveningStartTime + eveningAdd
 
     # count total time (evening end - morning start)
     totalTime = str(eveningEndTime - morningStartTime)[:-3]
+
+    # if total time is less than 10, add "0" to the beginning
+    if int(totalTime[0]) < 10 and totalTime[1] == ":":
+        totalTime = "0" + totalTime
     
     # convert times to strings and cut unwanted chars
     morningStartTime = str(morningStartTime)[10:-3]
@@ -79,8 +83,20 @@ def dayRoute():
 
     return dayRouteResult
 
+
+def repeatAll():
+    """ repeat all process till "together" sum is under 1400 EUR """
+
+    # print("Repeating...")
+
+    ws = wb2.active  # set 2nd excel active
+
+    # generateDates params: startRow, startColumn, startDate, numberOfDays
+    fillSheet(5, 1, datetime.datetime.strptime('2020-01-01', '%Y-%m-%d'), 31)
+    wb2.save("output.xlsx")
+
+
 def writeFooterValues():    
-    # *** footer ***
     # write petrol column sum
     petrolValueList = []
     for row in range(5, 128, 2):
@@ -102,6 +118,9 @@ def writeFooterValues():
     sumOfValueList = sum(togetherValueList)
     ws.cell(row=129, column=12, value=sumOfValueList)
 
+    if sumOfValueList > 1400:
+        repeatAll()
+
     # write "overpay/underpay" field sum
     ws.cell(row=131, column=12, value=ws.cell(row=129, column=12).value)
 
@@ -109,10 +128,16 @@ def writeFooterValues():
 def fillSheet(startRow, startColumn, startDate, numberOfDays):
     """ fill the worksheet with all data """
 
+    # do it _numberOfDays_-times
     for day in range(numberOfDays):
         getStartRoute = dayRoute()  # get dayRoute function result [start city, end city, km, time]
         getRandomTime = randomTime(getStartRoute[3])  # get start hours, end hours and travel time
                                                       # [start time, end time, start time2, end time2, total time]
+
+        # keep generating new time until it's less than 12:00
+        while str(getRandomTime[4][0]) == "1" and int(getRandomTime[4][1]) > 1:
+            getStartRoute = dayRoute()  # if 12 or more, do again!
+            getRandomTime = randomTime(getStartRoute[3])
 
         # set diets
         # if 5-12, set to 5.1
@@ -136,8 +161,10 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
                 ws.cell(row=startRow, column=startColumn+4, value="AUS").alignment = Alignment(vertical="center", horizontal="center")  # set to AUS
                 ws.cell(row=startRow, column=startColumn+5, value=getStartRoute[2]).alignment = Alignment(vertical="center", horizontal="center")  # km
 
-                petrolPrice = getPetrol()  # get random petrol price
-                petrolPrice = float(round(decimal.Decimal(petrolPrice[1] * float(getStartRoute[2])), 2))
+                petrolPrice = getPetrol()  # get petrol price && consumption price
+                # ws.cell(row=1, column=13, value=petrolPrice[0]) # test!!! write petrol price to table
+                petrolPrice = float(petrolPrice[1]) * float(getStartRoute[2])
+                petrolPrice = float(round(decimal.Decimal(petrolPrice), 2))
 
                 ws.cell(row=startRow, column=startColumn+7, value=petrolPrice).alignment = Alignment(vertical="center", horizontal="center")  # petrol price
                 ws.cell(row=startRow, column=startColumn+8, value=diets).alignment = Alignment(vertical="center", horizontal="center")  # diets
