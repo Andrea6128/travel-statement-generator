@@ -128,7 +128,9 @@ def writeFooterValues():
 def fillSheet(startRow, startColumn, startDate, numberOfDays):
     """ fill the worksheet with all data """
 
-    # do it _numberOfDays_-times
+    petrolPrice = getPetrol()  # get petrol price && consumption price (one for all month)
+
+    # repeat it _numberOfDays_-times
     for day in range(numberOfDays):
         getStartRoute = dayRoute()  # get dayRoute function result [start city, end city, km, time]
         getRandomTime = randomTime(getStartRoute[3])  # get start hours, end hours and travel time
@@ -161,14 +163,13 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
                 ws.cell(row=startRow, column=startColumn+4, value="AUS").alignment = Alignment(vertical="center", horizontal="center")  # set to AUS
                 ws.cell(row=startRow, column=startColumn+5, value=getStartRoute[2]).alignment = Alignment(vertical="center", horizontal="center")  # km
 
-                petrolPrice = getPetrol()  # get petrol price && consumption price
-                # ws.cell(row=1, column=13, value=petrolPrice[0]) # test!!! write petrol price to table
-                petrolPrice = float(petrolPrice[1]) * float(getStartRoute[2])
-                petrolPrice = float(round(decimal.Decimal(petrolPrice), 2))
+                ws.cell(row=1, column=13, value=petrolPrice[0]) # test!!! write petrol price to table
+                petrolPriceKm = petrolPrice[1] * float(getStartRoute[2])
+                petrolPriceKm = float(round(decimal.Decimal(petrolPriceKm), 2))
 
-                ws.cell(row=startRow, column=startColumn+7, value=petrolPrice).alignment = Alignment(vertical="center", horizontal="center")  # petrol price
+                ws.cell(row=startRow, column=startColumn+7, value=petrolPriceKm).alignment = Alignment(vertical="center", horizontal="center")  # petrol price
                 ws.cell(row=startRow, column=startColumn+8, value=diets).alignment = Alignment(vertical="center", horizontal="center")  # diets
-                ws.cell(row=startRow, column=startColumn+11, value=petrolPrice+float(diets)).alignment = Alignment(vertical="center", horizontal="center")  # together
+                ws.cell(row=startRow, column=startColumn+11, value=petrolPriceKm+float(diets)).alignment = Alignment(vertical="center", horizontal="center")  # together
             if event == 1:
                 ws.cell(row=startRow, column=startColumn+1, value="príchod")  # fill prichod
                 ws.cell(row=startRow, column=startColumn+2, value=getStartRoute[1])  # fill destination city
@@ -181,9 +182,9 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
                 ws.cell(row=startRow, column=startColumn+3, value=getRandomTime[2]).alignment = Alignment(vertical="center", horizontal="center")  # evening start time
                 ws.cell(row=startRow, column=startColumn+4, value="AUS").alignment = Alignment(vertical="center", horizontal="center")
                 ws.cell(row=startRow, column=startColumn+5, value=getStartRoute[2]).alignment = Alignment(vertical="center", horizontal="center")  # km
-                ws.cell(row=startRow, column=startColumn+7, value=petrolPrice).alignment = Alignment(vertical="center", horizontal="center")  # petrol price
+                ws.cell(row=startRow, column=startColumn+7, value=petrolPriceKm).alignment = Alignment(vertical="center", horizontal="center")  # petrol price
                 ws.cell(row=startRow, column=startColumn+8, value=diets).alignment = Alignment(vertical="center", horizontal="center")  # diets
-                ws.cell(row=startRow, column=startColumn+11, value=petrolPrice+float(diets)).alignment = Alignment(vertical="center", horizontal="center")  # together
+                ws.cell(row=startRow, column=startColumn+11, value=petrolPriceKm+float(diets)).alignment = Alignment(vertical="center", horizontal="center")  # together
             if event == 3:
                 ws.cell(row=startRow, column=startColumn+1, value="príchod")  # fill prichod
                 ws.cell(row=startRow, column=startColumn+2, value=getStartRoute[0])  # fill start city
