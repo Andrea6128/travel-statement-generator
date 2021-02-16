@@ -13,7 +13,6 @@ from openpyxl.styles import Alignment
 import random, datetime, sys, decimal
 
 
-DAYS_IN_MONTH = {1: 31, 2: 29, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
 
 try:
     PARAM = sys.argv[1]
@@ -24,6 +23,8 @@ except IndexError:
 
 
 def checkParam():
+    """ checks if provided parameter is correct """
+
     if not PARAM.isnumeric():
         print("Parameter is not integer")
         sys.exit()
@@ -33,24 +34,39 @@ def checkParam():
         sys.exit()
 
 
+def leapYearCheck():
+    """ checks if provided year is leap-year """
+
+    global DAYS_IN_MONTH
+    try:
+        print(YEAR)
+        if datetime.datetime(int(YEAR), 2, 29):
+            DAYS_IN_MONTH = {1: 31, 2: 29, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
+            print("29 days")
+    except ValueError:
+        DAYS_IN_MONTH = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
+        print("28 days")
+
+
 def generateAllYear():
+    """ generate all 12 months """
+
     for month in range(1, 13):  # 12 months
         generateMonth(month)
 
 
 def generateMonth(month):
-    try:
-        ws = wb2["mesiac " + str(month)]  # select worksheet
+    """ generate 1 month """
 
-        # fillSheet params: startRow, startColumn, startDate, month, numberOfDays, ws
-        if month < 10:
-            fillSheet(5, 1, datetime.datetime.strptime(YEAR + '-0' + str(month) + '-01', '%Y-%m-%d'), month, DAYS_IN_MONTH[month], ws)
-            # print("month ", month, " filled")
-        else:
-            fillSheet(5, 1, datetime.datetime.strptime(YEAR + '-' + str(month) + '-01', '%Y-%m-%d'), month, DAYS_IN_MONTH[month], ws)
-            # print("month ", month, " filled")
-    except ValueError:
-        print("no 29.2. this year")
+    ws = wb2["mesiac " + str(month)]  # select worksheet
+
+    # fillSheet params: startRow, startColumn, startDate, month, numberOfDays, ws
+    if month < 10:
+        fillSheet(5, 1, datetime.datetime.strptime(YEAR + '-0' + str(month) + '-01', '%Y-%m-%d'), month, DAYS_IN_MONTH[month], ws)
+        # print("month ", month, " filled")
+    else:
+        fillSheet(5, 1, datetime.datetime.strptime(YEAR + '-' + str(month) + '-01', '%Y-%m-%d'), month, DAYS_IN_MONTH[month], ws)
+        # print("month ", month, " filled")
 
 
 def getPetrol():
@@ -168,6 +184,7 @@ def fillSheet(startRow, startColumn, startDate, month, numberOfDays, ws):
     """ fill the worksheet with all data """
     petrolPrice = getPetrol()  # get petrol price && consumption price (one for all month)
 
+
     # repeat it _numberOfDays_-times
     for day in range(numberOfDays):
         getStartRoute = dayRoute()  # get dayRoute function result [start city, end city, km, time]
@@ -180,13 +197,13 @@ def fillSheet(startRow, startColumn, startDate, month, numberOfDays, ws):
             getRandomTime = randomTime(getStartRoute[3])
 
         # set diets
-        # if 5-12, set to 5.1
+        # if 5-12h, set to 5.1
         if int(getRandomTime[4][:2]) >= 5 and int(getRandomTime[4][:2]) < 12:
             diets = round(decimal.Decimal(5.1), 2)
-        #if 12-18, set to 7.6
+        #if 12-18h, set to 7.6
         if int(getRandomTime[4][:2]) >= 12 and int(getRandomTime[4][:2]) < 18:
             diets = round(decimal.Decimal(7.6), 2)
-        # if 18 and more, set to 11.6
+        # if 18h and more, set to 11.6
         if int(getRandomTime[4][:2]) >= 18:
             diets = round(decimal.Decimal(11.6), 2)
 
@@ -239,6 +256,7 @@ def fillSheet(startRow, startColumn, startDate, month, numberOfDays, ws):
 if __name__ == '__main__':
     checkParam()
     YEAR = PARAM
+    leapYearCheck()
 
     print("Loading input files")
     wb1 = load_workbook("mesta_input.xlsx")
