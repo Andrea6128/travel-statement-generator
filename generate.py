@@ -10,10 +10,30 @@
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles.borders import Border, Side
 from openpyxl.styles import Alignment
-import random
-import datetime
-import sys
-import decimal
+import random, datetime, sys, decimal
+
+
+DAYS_IN_MONTH = {1: 31, 2: 29, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
+
+def generateAllYear():
+    for month in range(1, 13):  # 12 months
+        generateMonth(month)
+
+def generateMonth(month):
+    try:
+        ws = wb2["mesiac " + str(month)]  # select worksheet
+        print("selected worksheet: ", ws)
+
+        # fillSheet params: startRow, startColumn, startDate, month, numberOfDays, ws
+        if month < 10:
+            fillSheet(5, 1, datetime.datetime.strptime('2022-0' + str(month) + '-01', '%Y-%m-%d'), month, DAYS_IN_MONTH[month], ws)
+            print("month ", month, " filled")
+        else:
+            fillSheet(5, 1, datetime.datetime.strptime('2022-' + str(month) + '-01', '%Y-%m-%d'), month, DAYS_IN_MONTH[month], ws)
+            print("month ", month, " filled")
+    except ValueError:
+        print("no 29.2. this year")
+
 
 
 def getPetrol():
@@ -81,32 +101,35 @@ def dayRoute():
     dayRouteResult.append(str(distance))
     dayRouteResult.append(str(travelTime))
 
+    ws = wb2.active  # set 2nd excel active
+
     return dayRouteResult
 
 
-def repeatAll():
+def repeat(currentMonth):
     """ repeat all process till "together" sum is under 1400 EUR """
 
-    # print("Repeating...")
+    print("Repeating...")
 
     ws = wb2.active  # set 2nd excel active
 
     # generateDates params: startRow, startColumn, startDate, numberOfDays
-    fillSheet(5, 1, datetime.datetime.strptime('2020-01-01', '%Y-%m-%d'), 31)
-    wb2.save("output.xlsx")
+    generateMonth(currentMonth)
 
 
-def writeFooterValues():    
+def writeFooterValues(month, ws):
+    """ fill footer with sum calculations """
+
     # write petrol column sum
     petrolValueList = []
-    for row in range(5, 128, 2):
+    for row in range(5, (DAYS_IN_MONTH[month] * 4) - 1, 2):
         petrolValueList.append(ws.cell(row=row, column=8).value)
     sumOfValueList = sum(petrolValueList)
     ws.cell(row=129, column=8, value=sumOfValueList)
 
     # write diets column sum
     dietValueList = []
-    for row in range(5, 128, 2):
+    for row in range(5, (DAYS_IN_MONTH[month] * 4) - 1, 2):
         dietValueList.append(ws.cell(row=row, column=9).value)
     sumOfValueList = sum(dietValueList)
     ws.cell(row=129, column=9, value=sumOfValueList)
@@ -118,16 +141,16 @@ def writeFooterValues():
     sumOfValueList = sum(togetherValueList)
     ws.cell(row=129, column=12, value=sumOfValueList)
 
+    # repeat all calculations if total sum is over 1400 EUR
     if sumOfValueList > 1400:
-        repeatAll()
+        repeat(month)
 
     # write "overpay/underpay" field sum
     ws.cell(row=131, column=12, value=ws.cell(row=129, column=12).value)
 
 
-def fillSheet(startRow, startColumn, startDate, numberOfDays):
+def fillSheet(startRow, startColumn, startDate, month, numberOfDays, ws):
     """ fill the worksheet with all data """
-
     petrolPrice = getPetrol()  # get petrol price && consumption price (one for all month)
 
     # repeat it _numberOfDays_-times
@@ -195,7 +218,7 @@ def fillSheet(startRow, startColumn, startDate, numberOfDays):
         # increment day by 1
         startDate = startDate + datetime.timedelta(days=1)
 
-    writeFooterValues()
+    writeFooterValues(month, ws)
 
 # main
 if __name__ == '__main__':
@@ -203,8 +226,10 @@ if __name__ == '__main__':
     wb1 = load_workbook("mesta_input.xlsx")
     wb2 = load_workbook("output.xlsx")
     ws = wb2.active  # set 2nd excel active
+    print("worksheets loaded")
 
-    # generateDates params: startRow, startColumn, startDate, numberOfDays
-    fillSheet(5, 1, datetime.datetime.strptime('2020-01-01', '%Y-%m-%d'), 31)
+    generateAllYear()
+
     wb2.save("output.xlsx")
+    
     print("Done!")
