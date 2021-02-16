@@ -15,25 +15,42 @@ import random, datetime, sys, decimal
 
 DAYS_IN_MONTH = {1: 31, 2: 29, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
 
+try:
+    PARAM = sys.argv[1]
+except IndexError:
+    print("No parameter provided")
+    print("Syntax: python generator.py [year]")
+    sys.exit()
+
+
+def checkParam():
+    if not PARAM.isnumeric():
+        print("Parameter is not integer")
+        sys.exit()
+
+    if int(PARAM) < 1970 or int(PARAM) > 2100:
+        print("Year is out of range (1970-2100)")
+        sys.exit()
+
+
 def generateAllYear():
     for month in range(1, 13):  # 12 months
         generateMonth(month)
 
+
 def generateMonth(month):
     try:
         ws = wb2["mesiac " + str(month)]  # select worksheet
-        print("selected worksheet: ", ws)
 
         # fillSheet params: startRow, startColumn, startDate, month, numberOfDays, ws
         if month < 10:
-            fillSheet(5, 1, datetime.datetime.strptime('2022-0' + str(month) + '-01', '%Y-%m-%d'), month, DAYS_IN_MONTH[month], ws)
-            print("month ", month, " filled")
+            fillSheet(5, 1, datetime.datetime.strptime(YEAR + '-0' + str(month) + '-01', '%Y-%m-%d'), month, DAYS_IN_MONTH[month], ws)
+            # print("month ", month, " filled")
         else:
-            fillSheet(5, 1, datetime.datetime.strptime('2022-' + str(month) + '-01', '%Y-%m-%d'), month, DAYS_IN_MONTH[month], ws)
-            print("month ", month, " filled")
+            fillSheet(5, 1, datetime.datetime.strptime(YEAR + '-' + str(month) + '-01', '%Y-%m-%d'), month, DAYS_IN_MONTH[month], ws)
+            # print("month ", month, " filled")
     except ValueError:
         print("no 29.2. this year")
-
 
 
 def getPetrol():
@@ -41,8 +58,8 @@ def getPetrol():
 
     petrolPrice = random.randint(120, 135) / 100  # random cena za litr
     consumption = 22 / 100
-    flatRateConpensation = .193  # pausalni nahrada
-    consumptionPrice = petrolPrice * consumption + flatRateConpensation
+    flatRateCompensation = .193  # pausalni nahrada
+    consumptionPrice = petrolPrice * consumption + flatRateCompensation
 
     return [petrolPrice, consumptionPrice]
 
@@ -109,7 +126,7 @@ def dayRoute():
 def repeat(currentMonth):
     """ repeat all process till "together" sum is under 1400 EUR """
 
-    print("Repeating...")
+    # print("Repeating...")
 
     ws = wb2.active  # set 2nd excel active
 
@@ -222,14 +239,16 @@ def fillSheet(startRow, startColumn, startDate, month, numberOfDays, ws):
 
 # main
 if __name__ == '__main__':
-    print("Processing output.xlsx ...")
-    wb1 = load_workbook("mesta_input.xlsx")
-    wb2 = load_workbook("output.xlsx")
-    ws = wb2.active  # set 2nd excel active
-    print("worksheets loaded")
+    checkParam()
+    YEAR = PARAM
 
+    print("Loading input files")
+    wb1 = load_workbook("mesta_input.xlsx")
+    wb2 = load_workbook("empty.xlsx")
+    ws = wb2.active  # set 2nd excel active
+
+    print("Generating worksheets for year", YEAR)
     generateAllYear()
 
+    print("Saving output file")
     wb2.save("output.xlsx")
-    
-    print("Done!")
