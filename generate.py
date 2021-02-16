@@ -126,8 +126,6 @@ def dayRoute():
 def repeat(currentMonth):
     """ repeat all process till "together" sum is under 1400 EUR """
 
-    # print("Repeating...")
-
     ws = wb2.active  # set 2nd excel active
 
     # generateDates params: startRow, startColumn, startDate, numberOfDays
@@ -139,14 +137,14 @@ def writeFooterValues(month, ws):
 
     # write petrol column sum
     petrolValueList = []
-    for row in range(5, (DAYS_IN_MONTH[month] * 4) - 1, 2):
+    for row in range(5, (DAYS_IN_MONTH[month] * 4) + 4, 2):
         petrolValueList.append(ws.cell(row=row, column=8).value)
     sumOfValueList = sum(petrolValueList)
     ws.cell(row=129, column=8, value=sumOfValueList)
 
     # write diets column sum
     dietValueList = []
-    for row in range(5, (DAYS_IN_MONTH[month] * 4) - 1, 2):
+    for row in range(5, (DAYS_IN_MONTH[month] * 4) + 4, 2):
         dietValueList.append(ws.cell(row=row, column=9).value)
     sumOfValueList = sum(dietValueList)
     ws.cell(row=129, column=9, value=sumOfValueList)
