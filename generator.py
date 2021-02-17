@@ -90,7 +90,7 @@ def randomTime(routeLength):
     """ generate random times and return start, end and total time """
 
     # convert routeLength minutes to a tuple (HOUR, MINUTE) and then to variables
-    routeLengthHour = int(routeLength[:1])
+    routeLengthHour = int(routeLength[:2])
     routeLengthMinute = int(routeLength[3:-3])
 
     # morning time generator
