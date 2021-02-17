@@ -3,7 +3,7 @@
 # calculates corresponding values and fees
 # 
 # 'empty.xlsx' must exist and has to be formatted properly!
-# 'mesta_input.xlsx' must exist!
+# 'db.xlsx' must exist!
 #
 # only 4-city model (2 routes per day) applied
 
@@ -13,6 +13,7 @@ from openpyxl.styles import Alignment
 import random, datetime, sys, decimal
 
 
+DAYS_IN_MONTH = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
 
 try:
     PARAM = sys.argv[1]
@@ -39,13 +40,13 @@ def leapYearCheck():
 
     global DAYS_IN_MONTH
     try:
-        print(YEAR)
         if datetime.datetime(int(YEAR), 2, 29):
-            DAYS_IN_MONTH = {1: 31, 2: 29, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
-            print("29 days")
+            DAYS_IN_MONTH[2] = 29
+            return True
+
     except ValueError:
-        DAYS_IN_MONTH = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
-        print("28 days")
+        DAYS_IN_MONTH[2] = 28
+        return False
 
 
 def generateAllYear():
@@ -218,7 +219,7 @@ def fillSheet(startRow, startColumn, startDate, month, numberOfDays, ws):
                 ws.cell(row=startRow, column=startColumn+4, value="AUS").alignment = Alignment(vertical="center", horizontal="center")  # set to AUS
                 ws.cell(row=startRow, column=startColumn+5, value=getStartRoute[2]).alignment = Alignment(vertical="center", horizontal="center")  # km
 
-                ws.cell(row=1, column=13, value=petrolPrice[0]) # test!!! write petrol price to table
+                # ws.cell(row=1, column=13, value=petrolPrice[0]) # test!!! write petrol price to table
                 petrolPriceKm = petrolPrice[1] * float(getStartRoute[2])
                 petrolPriceKm = float(round(decimal.Decimal(petrolPriceKm), 2))
 
@@ -256,14 +257,19 @@ def fillSheet(startRow, startColumn, startDate, month, numberOfDays, ws):
 if __name__ == '__main__':
     checkParam()
     YEAR = PARAM
-    leapYearCheck()
+    isLeap = leapYearCheck()
 
     print("Loading input files")
-    wb1 = load_workbook("mesta_input.xlsx")
+    wb1 = load_workbook("db.xlsx")
     wb2 = load_workbook("empty.xlsx")
     ws = wb2.active  # set 2nd excel active
 
-    print("Generating worksheets for year", YEAR)
+    print("Generating worksheets for year", YEAR, end=" ")
+    if isLeap:
+        print("(leap-year)")
+    else:
+        print()
+
     generateAllYear()
 
     print("Saving output file")
