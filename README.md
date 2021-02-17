@@ -1,7 +1,7 @@
 # travel-statement-generator 
 - this program generates random travel times and calculates corresponding values and fees into a preformatted table
  
-- IMPORTANT ->
+IMPORTANT ->
 - ```empty.xlsx``` must exist and has to be formatted properly!
 - ```db.xlsx``` must exist!
 
@@ -11,6 +11,8 @@
 - go to the project directory
 - install virtual environment
 ```py -m venv venv```
+- activate virtual environment
+```venv\Scripts\activate.bat```
 - install requirements
 ```pip install -r requirements.txt```
 
