@@ -1,7 +1,12 @@
-# *** travel statement generator ***
-# this program generates random travel times and
-# calculates corresponding values and fees
+# ==================================
+# === Travel Statement Generator ===
+# ==================================
+#
+# This program generates random travel times and
+# calculates corresponding values and fees into
+# a preformatted table
 # 
+# IMPORTANT ->
 # 'empty.xlsx' must exist and has to be formatted properly!
 # 'db.xlsx' must exist!
 #
@@ -13,8 +18,10 @@ from openpyxl.styles import Alignment
 import random, datetime, sys, decimal
 
 
+# set number of days for months
 DAYS_IN_MONTH = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
 
+# if param is empty, show message
 try:
     PARAM = sys.argv[1]
 except IndexError:
@@ -64,10 +71,8 @@ def generateMonth(month):
     # fillSheet params: startRow, startColumn, startDate, month, numberOfDays, ws
     if month < 10:
         fillSheet(5, 1, datetime.datetime.strptime(YEAR + '-0' + str(month) + '-01', '%Y-%m-%d'), month, DAYS_IN_MONTH[month], ws)
-        # print("month ", month, " filled")
     else:
         fillSheet(5, 1, datetime.datetime.strptime(YEAR + '-' + str(month) + '-01', '%Y-%m-%d'), month, DAYS_IN_MONTH[month], ws)
-        # print("month ", month, " filled")
 
 
 def getPetrol():
