@@ -1,6 +1,6 @@
-# ==================================
-# === Travel Statement Generator ===
-# ==================================
+# ======================================================
+# ============= Travel Statement Generator =============
+# ======================================================
 #
 # This program generates random travel times and
 # calculates corresponding values and fees into
@@ -13,7 +13,6 @@
 # only 4-city model (2 routes per day) applied
 
 from openpyxl import Workbook, load_workbook
-from openpyxl.styles.borders import Border, Side
 from openpyxl.styles import Alignment
 import random, datetime, sys, decimal
 
@@ -149,7 +148,6 @@ def repeat(currentMonth):
     """ repeat all process till "together" sum is under 1400 EUR """
 
     ws = wb2.active  # set 2nd excel active
-
     # generateDates params: startRow, startColumn, startDate, numberOfDays
     generateMonth(currentMonth)
 
