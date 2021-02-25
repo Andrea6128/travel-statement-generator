@@ -13,7 +13,7 @@
 ```pip install -r requirements.txt```
 
 # run
-- go to the project directory
+- go to the project directory and do
 ```py generator.py [year]```
 - [year] must be a decimal integer in range 1970 and 2100
 
